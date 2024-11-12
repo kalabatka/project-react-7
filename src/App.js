@@ -1,25 +1,64 @@
-import logo from './logo.svg';
+
 import './App.css';
 
-function App() {
+import React, { useState, useEffect } from 'react';
+
+const NewsApp = () => {
+  const [query, setQuery] = useState('');
+  const [articles, setArticles] = useState([]);
+  const [page, setPage] = useState(1);
+  const apiKey = 'YOUR_API_KEY';
+
+  const fetchArticles = (pageNum = 1) => {
+    fetch(`https://content.guardianapis.com/search?api-key=99d3b6ad-d4ad-48b9-b960-610c70639a1b`)
+      .then(response => response.json())
+      .then(data => {
+        setArticles(data.response.results);
+      });
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchArticles();
+  };
+
+  const handleNextPage = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchArticles(nextPage);
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      const prevPage = page - 1;
+      setPage(prevPage);
+      fetchArticles(prevPage);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>News from The Guardian</h1>
+      <form onSubmit={handleSearch}>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Enter topic"
+        />
+        <button type="submit">Search</button>
+      </form>
+      <div>
+        {articles.map((article, index) => (
+          <div key={index}>
+            <a href={article.webUrl}>{article.webTitle}</a>
+          </div>
+        ))}
+      </div>
+      <button onClick={handlePrevPage} disabled={page === 1}>Previous</button>
+      <button onClick={handleNextPage}>Next</button>
     </div>
   );
-}
+};
 
-export default App;
+export default NewsApp;

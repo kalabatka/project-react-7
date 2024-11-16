@@ -1,13 +1,12 @@
-
-import './App.css';
-
 import React, { useState, useEffect } from 'react';
+import "./App.css";
 
 const NewsApp = () => {
   const [query, setQuery] = useState('');
   const [articles, setArticles] = useState([]);
   const [page, setPage] = useState(1);
-  const apiKey = 'YOUR_API_KEY';
+  const [currentPage, setCurrentPage] = useState(1);
+  const apiKey = 'https://content.guardianapis.com/search?api-key=99d3b6ad-d4ad-48b9-b960-610c70639a1b';
 
   const fetchArticles = (pageNum = 1) => {
     fetch(`https://content.guardianapis.com/search?api-key=99d3b6ad-d4ad-48b9-b960-610c70639a1b`)
@@ -62,3 +61,5 @@ const NewsApp = () => {
 };
 
 export default NewsApp;
+
+

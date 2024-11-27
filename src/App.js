@@ -1,65 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import "./App.css";
+import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate } from 'react-router-dom';
 
-const NewsApp = () => {
-  const [query, setQuery] = useState('');
+
+
+
+const NewsPage = () => {
   const [articles, setArticles] = useState([]);
-  const [page, setPage] = useState(1);
-  const [currentPage, setCurrentPage] = useState(1);
-  const apiKey = 'https://content.guardianapis.com/search?api-key=99d3b6ad-d4ad-48b9-b960-610c70639a1b';
+  const [searchParams] = useSearchParams();
+  const page = parseInt(searchParams.get('page')) || 1;
 
-  const fetchArticles = (pageNum = 1) => {
-    fetch(`https://content.guardianapis.com/search?api-key=99d3b6ad-d4ad-48b9-b960-610c70639a1b`)
+  useEffect(() => {
+    fetch(`https://content.guardianapis.com/search?api-key=99d3b6ad-d4ad-48b9-b960-610c70639a1b/search?api-key=API_KEY&page=${page}`)
       .then(response => response.json())
-      .then(data => {
-        setArticles(data.response.results);
-      });
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchArticles();
-  };
-
-  const handleNextPage = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    fetchArticles(nextPage);
-  };
-
-  const handlePrevPage = () => {
-    if (page > 1) {
-      const prevPage = page - 1;
-      setPage(prevPage);
-      fetchArticles(prevPage);
-    }
-  };
+      .then(data => setArticles(data.response.results));
+  }, [page]);
 
   return (
     <div>
-      <h1>News from The Guardian</h1>
-      <form onSubmit={handleSearch}>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Enter topic"
-        />
-        <button type="submit">Search</button>
-      </form>
-      <div>
-        {articles.map((article, index) => (
-          <div key={index}>
-            <a href={article.webUrl}>{article.webTitle}</a>
-          </div>
-        ))}
-      </div>
-      <button onClick={handlePrevPage} disabled={page === 1}>Previous</button>
-      <button onClick={handleNextPage}>Next</button>
+      {articles.map((article, index) => (
+        <div key={index}>
+          <a href={article.webUrl}>{article.webTitle}</a>
+        </div>
+      ))}
+      <Pagination currentPage={page} />
     </div>
   );
 };
 
-export default NewsApp;
+const Pagination = ({ currentPage }) => {
+  const navigate = useNavigate();
+
+  const handlePageChange = (newPage) => {
+    navigate(`/news?page=${newPage}`);
+  };
+
+  return (
+    <div>
+      <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+        Previous
+      </button>
+      <button onClick={() => handlePageChange(currentPage + 1)}>Next</button>
+    </div>
+  );
+};
+
+const App = () => (
+  <Router>
+    <Routes>
+      <Route path="/news" element={<NewsPage />} />
+    </Routes>
+  </Router>
+);
+
+export default App;
+
+
+
 
 
